@@ -17,7 +17,7 @@ module Spotify
     private
 
     def load_username
-      YAML.load_file(File.expand_path('../../config/credentials.yml', File.dirname(__FILE__)))['username']
+      YAML.load_file("#{APP_ROOT}/config/credentials.yml")['username']
     end
   end
 end
