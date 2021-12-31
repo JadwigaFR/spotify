@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activesupport', '~> 4.2.0'
   spec.add_dependency 'rspotify', '~> 2.11', '>= 2.11.1'
   spec.add_dependency 'thor', '~> 1.1'
+  spec.add_development_dependency 'pry', '~> 0.14.1'
   spec.add_development_dependency 'rspec', '~> 3.2'
   spec.add_development_dependency 'sekrets', '~> 1.10'
-  spec.add_development_dependency 'pry', '~> 0.14.1'
 end
