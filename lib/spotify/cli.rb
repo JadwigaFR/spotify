@@ -7,26 +7,44 @@ require 'csv'
 module Spotify
   class CLI < Thor
     desc 'download_playlists', 'Downloads all user\'s playlists into zipped csv'
+
     def download_playlists
-      puts 'Welcome to the Spotify playlist CLI'
+      say('Welcome to the Spotify playlist CLI')
       user = Spotify::User.default
 
-      puts "Downloading playlists for user #{user.display_name}..."
-      playlists = user.playlists
-      puts "User: #{user.display_name} has #{playlists.count} playlists."
-      playlists_ids = playlists.map(&:id)
+      say("Downloading playlists for user #{user.display_name}...")
+      playlist_ids = find_playlist_ids(user)
+      say("User: #{user.display_name} has #{playlist_ids.count} playlists.")
+      continue = ask('Do you want to continue? (yes/no)')
+      return if continue.eql?('no')
 
-      playlists_ids.each do |playlist_id|
+      playlist_ids.each do |playlist_id|
         playlist = RSpotify::Playlist.find(user.id, playlist_id)
-        path = File.expand_path("../../tmp/playlists/#{Time.now.strftime('%C%m%d')}_#{playlist.name}.csv",
-                                File.dirname(__FILE__))
-        CSV.open(path, 'wb', headers: true) do |csv|
+        CSV.open("#{APP_ROOT}/tmp/playlists/#{Time.now.strftime('%C%m%d')}_#{playlist.name}.csv", 'wb',
+                 headers: true) do |csv|
           csv << %w[song_id song_name artist_name album_name]
           playlist.tracks.each do |song|
             csv << [song.id, song.name, song.artists.first.name, song.album.name]
           end
         end
       end
+    end
+
+    private
+
+    def find_playlist_ids(user)
+      playlist_ids = user.playlists(limit: 50).map(&:id).flatten
+      continue = playlist_ids.count.eql?(50)
+      counter = 0
+
+      while continue
+        counter += 1
+        offset = 50 * counter
+        playlist_ids.concat(user.playlists(limit: 50, offset: offset))
+        continue = (playlist_ids.count % 50).zero?
+      end
+
+      playlist_ids
     end
   end
 end
