@@ -5,12 +5,13 @@ require 'pry'
 
 module Spotify
   class Configuration
-    attr_writer :username, :password
+    attr_reader :username, :password, :client_id, :client_secret
 
-    def self.username
+    def initialize
       credentials = Sekrets.settings_for('./config/credentials.yml.enc')
-      @username = credentials["username"]
-      @password =  credentials["password"]
+      @username = credentials['username']
+      @client_id = credentials['client_id']
+      @client_secret = credentials['client_secret']
     end
   end
 end
