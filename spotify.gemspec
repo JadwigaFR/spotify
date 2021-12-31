@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ['jadwiga.coumert@gmail.com']
 
   spec.summary = 'Spotify playlists CLI'
-  spec.description = 'CLI to download spotify playlists as csvs and vice versa'
+  spec.description = 'CLI to download spotify playlists as csvs'
   spec.homepage = 'https://github.com/JadwigaFR'
   spec.required_ruby_version = '>= 2.6.6'
 
@@ -27,16 +27,10 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  # Uncomment to register a new dependency of your gem
-  # spec.add_dependency "example-gem", "~> 1.0"
   spec.add_dependency 'activesupport', '~> 4.2.0'
-  spec.add_dependency 'rspotify'
-  spec.add_dependency 'thor'
-  spec.add_development_dependency 'aruba'
-  spec.add_development_dependency 'cucumber'
+  spec.add_dependency 'rspotify', '~> 2.11', '>= 2.11.1'
+  spec.add_dependency 'thor', '~> 1.1'
   spec.add_development_dependency 'rspec', '~> 3.2'
-  spec.add_development_dependency 'sekrets'
-
-  # For more information and examples about making a new gem, checkout our
-  # guide at: https://bundler.io/guides/creating_gem.html
+  spec.add_development_dependency 'sekrets', '~> 1.10'
+  spec.add_development_dependency 'pry', '~> 0.14.1'
 end
