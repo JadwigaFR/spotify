@@ -3,9 +3,14 @@ set -euo pipefail
 
 echo "Installing ruby 2.6..."
 sudo apt update
-sudo apt install -y ruby2.6 bundler
+sudo apt install -y rbenv
+rbenv install 2.6.6
+
+export PATH=~/.rbenv/shims:$PATH
+echo "export PATH=~/.rbenv/shims:\$PATH" >> ~/.bashrc
 
 echo "Installing dependencies..."
+gem install bundler
 bundle install
 
 echo "Creating .sekrets file, please ask your developer to give you the secret"
