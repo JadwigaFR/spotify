@@ -5,31 +5,28 @@ module Spotify
     TRACK_LIMIT = 100
     attr_reader :playlist, :path
 
-    def initialize(user_id:, playlist_id:)
-      @playlist = RSpotify::Playlist.find(user_id, playlist_id)
+    def initialize(playlist:)
+      @playlist = playlist
       @path = file_path(playlist)
     end
 
     def tracks
-      RSpotify::Track.find(find_track_ids)
-    end
-
-    private
-
-    def find_track_ids
-      track_ids = playlist.tracks(limit: TRACK_LIMIT).map(&:id)
-      continue = track_ids.count.eql?(TRACK_LIMIT)
+      tracks = playlist.tracks(limit: TRACK_LIMIT)
+      continue = tracks.count.eql?(TRACK_LIMIT)
       counter = 0
 
       while continue
         counter += 1
         offset = TRACK_LIMIT * counter
-        track_ids.concat(playlist.tracks(limit: TRACK_LIMIT, offset: offset))
-        continue = track_ids.count != TRACK_LIMIT && (track_ids.count % TRACK_LIMIT).zero?
+        new_tracks = playlist.tracks(limit: TRACK_LIMIT, offset: offset)
+        tracks.concat(new_tracks)
+        continue = !new_tracks.count.zero? && (new_tracks.count % TRACK_LIMIT).zero?
       end
 
-      track_ids
+      tracks
     end
+
+    private
 
     def format_playlist_name
       playlist.name.gsub(/\W+/, '_')
