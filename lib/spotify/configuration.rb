@@ -9,9 +9,15 @@ module Spotify
 
     def initialize
       credentials = Sekrets.settings_for('./config/credentials.yml.enc')
-      @username = credentials['username']
+      @username = load_username
       @client_id = credentials['client_id']
       @client_secret = credentials['client_secret']
+    end
+
+    private
+
+    def load_username
+      YAML.load_file(File.expand_path('../../config/credentials.yml', File.dirname(__FILE__)))['username']
     end
   end
 end

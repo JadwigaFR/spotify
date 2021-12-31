@@ -2,46 +2,31 @@
 
 require 'thor'
 require 'spotify'
-require 'io/console'
+require 'csv'
 
 module Spotify
   class CLI < Thor
-    desc 'login', 'Login to Spotify account'
-    def login
+    desc 'download_playlists', 'Downloads all user\'s playlists into zipped csv'
+    def download_playlists
       puts 'Welcome to the Spotify playlist CLI'
-      user = Spotify::User.new
+      user = Spotify::User.default
 
-      if user
-        puts "You're logged in as #{user.name}."
-        puts 'Do you still want to login? (yes/no)'
-        user_input = gets.chomp
-        recursive_log_in if user_input.eql?('yes')
+      puts "Downloading playlists for user #{user.display_name}..."
+      playlists = user.playlists
+      puts "User: #{user.display_name} has #{playlists.count} playlists."
+      playlists_ids = playlists.map(&:id)
+
+      playlists_ids.each do |playlist_id|
+        playlist = RSpotify::Playlist.find(user.id, playlist_id)
+        path = File.expand_path("../../tmp/playlists/#{Time.now.strftime('%C%m%d')}_#{playlist.name}.csv",
+                                File.dirname(__FILE__))
+        CSV.open(path, 'wb', headers: true) do |csv|
+          csv << %w[song_id song_name artist_name album_name]
+          playlist.tracks.each do |song|
+            csv << [song.id, song.name, song.artists.first.name, song.album.name]
+          end
+        end
       end
-    rescue Error => e
-      puts "Oooops! Something went wrong with error: #{e.message}"
-      puts 'Try to debug yourself or send the error message + screenshot of console to your favorite developer'
-    end
-
-    private
-
-    def recursive_log_in
-      username, password = get_log_credentials
-      user = Spotify::User.find(username: username, password: password)
-      Spotify::User.login(user: user)
-    rescue Spotify::User::Error
-      puts 'Wrong credentials!'
-      recursive_log_in
-    end
-
-    def get_log_credentials
-      puts 'Please provide your account name'
-      puts '>> '
-      username = gets.chomp
-      puts "What's your password"
-      puts '>> '
-      password = $stdin.noecho(&:gets)
-
-      [username, password]
     end
   end
 end

@@ -8,15 +8,9 @@ module Spotify
   class User
     class AuthenticationError < StandardError; end
 
-    def initialize(username = nil)
-      configuration = Spotify::Configuration.new
-      RSpotify.authenticate(configuration.client_id, configuration.client_secret)
-
-      if username
-        RSpotify::User.find(username)
-      else
-        RSpotify::User.find(configuration.username)
-      end
+    def self.default
+      RSpotify.authenticate(@@configuration.client_id, @@configuration.client_secret)
+      RSpotify::User.find(@@configuration.username)
     rescue RestClient::NotFound => e
       raise AuthenticationError, "Something went wrong in the authentication. Message: #{e.message}"
     end
